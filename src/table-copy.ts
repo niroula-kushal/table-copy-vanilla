@@ -67,7 +67,12 @@ function selectItems(td : HTMLTableCellElement) {
     table.classList.add(selectedTableClass);
 }
 
-export default () => {
+
+export type InitializationProps = {
+    onCopy?: (data:string) => void
+};
+
+export default ({ onCopy } : InitializationProps = {}) => {
     document.addEventListener('keyup', e => {
         if (e.key === "Escape") {
             const tables = document.querySelectorAll('.' + selectedTableClass);
@@ -101,7 +106,7 @@ export default () => {
 
 
     document.body.addEventListener("copy", e => {
-                
+
         let target: any = e.target as HTMLElement;
 
         if (target.tagName !== "table") {
@@ -133,6 +138,7 @@ export default () => {
         }
 
         e.clipboardData!.setData('text/plain', toCopy);
+        onCopy && onCopy(toCopy);
         e.preventDefault();
     })
 };
