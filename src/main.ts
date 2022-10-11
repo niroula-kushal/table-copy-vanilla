@@ -1,7 +1,11 @@
 import './style.css'
 import tableCopy from './table-copy'
 
-tableCopy();
+tableCopy({
+  onCopy: data => {
+    document.querySelector('textarea')!.value = data;
+  }
+});
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
