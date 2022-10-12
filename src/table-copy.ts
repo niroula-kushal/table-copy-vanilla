@@ -69,10 +69,11 @@ function selectItems(td : HTMLTableCellElement) {
 
 
 export type InitializationProps = {
-    onCopy?: (data:string) => void
+    onCopy?: (data:string) => void,
+    retrieveText?: (elem: HTMLTableCellElement) => string
 };
 
-export default ({ onCopy } : InitializationProps = {}) => {
+export default ({ onCopy, retrieveText } : InitializationProps = {}) => {
     document.addEventListener('keyup', e => {
         if (e.key === "Escape") {
             const tables = document.querySelectorAll('.' + selectedTableClass);
@@ -134,7 +135,8 @@ export default ({ onCopy } : InitializationProps = {}) => {
                 seperator = "\n";
             }
             lastRowIdx = rowIndex;
-            toCopy += seperator + cell.textContent!.trim();
+            const text = retrieveText ? retrieveText(cell as HTMLTableCellElement) : cell.textContent;
+            toCopy += seperator + text!.trim();
         }
 
         e.clipboardData!.setData('text/plain', toCopy);
