@@ -3,8 +3,8 @@ const selectedClass = "__x-selected";
 const firstSelectedClass = "__xfirst-selected";
 const selectedTableClass = "__x_table-selected";
 
-function getTargetCol(target: HTMLElement) : HTMLTableCellElement {
-    let targetTd:any = target;
+function getTargetCol(target: HTMLElement): HTMLTableCellElement {
+    let targetTd: any = target;
     if (target.tagName !== "td" && target.tagName !== "th") {
         targetTd = target.closest("td, th");
     }
@@ -22,7 +22,7 @@ function unselectTable(target: HTMLTableElement) {
 
 function handleTableUnselect(e: MouseEvent) {
     if (e.ctrlKey) return;
-    let target: HTMLElement|null = e.target as HTMLElement;
+    let target: HTMLElement | null = e.target as HTMLElement;
     if (!target.classList.contains((selectedTableClass))) {
         target = target.closest('.' + selectedTableClass);
     }
@@ -34,12 +34,54 @@ function getSelectedCells(table: HTMLTableElement) {
     return Array.from(table.querySelectorAll("." + selectedClass));
 }
 
-function selectItems(td : HTMLTableCellElement) {
+function getLastSelectedCellInfo(table: HTMLTableElement) {
+    const selectedCells = Array.from(table.querySelectorAll("." + selectedClass)) as HTMLTableCellElement[];
+    const lastCell = selectedCells[selectedCells.length - 1];
+    const columnIdx = lastCell.cellIndex;
+    const rowIdx = (lastCell.parentElement as HTMLTableRowElement).rowIndex;
+
+    return {
+        columnIdx,
+        rowIdx
+    };
+}
+
+function autoScroll(elm: HTMLElement) {
+    elm.scrollIntoView({block: "end", inline: "nearest", behavior: 'smooth'});
+}
+
+function addColumnSelection(table: HTMLTableElement, columnCount: number) {
+    const { rowIdx, columnIdx } = getLastSelectedCellInfo(table);
+    const cells = table.rows[rowIdx].cells;
+
+    if(cells.length > columnIdx + columnCount && columnIdx + columnCount >= 0) {
+        const finalLastElement = cells[columnIdx + columnCount];
+        selectItems(finalLastElement);
+    }
+}
+
+function addRowSelection(table: HTMLTableElement, rowCount: number) {
+    const { rowIdx, columnIdx } = getLastSelectedCellInfo(table);
+    const rows = table.rows;
+
+    const finalRowIdx = rowIdx + rowCount;
+
+    if(finalRowIdx < 0) return;
+    if(finalRowIdx >= rows.length) return;
+
+    const finalLastElement = rows[finalRowIdx].cells[columnIdx];
+    selectItems(finalLastElement);
+}
+
+function selectItems(td: HTMLTableCellElement) {
     const table = td.closest('table')!;
     const prevSelected = table.querySelectorAll("." + selectedClass);
     prevSelected.forEach(x => x.classList.remove(selectedClass));
 
     const firstItem = table.querySelector("." + firstSelectedClass)! as HTMLTableCellElement;
+
+    // Re-calculate again
+    firstItem.classList.remove(firstSelectedClass);
 
     const rowStart = firstItem.closest('tr')!.rowIndex;
     const rowEnd = td.closest('tr')!.rowIndex;
@@ -64,22 +106,49 @@ function selectItems(td : HTMLTableCellElement) {
             column.classList.add(selectedClass);
         }
     }
+    autoScroll(table.rows[rect.rows.end].cells[rect.cols.end])
     table.classList.add(selectedTableClass);
+    table.rows[rect.rows.start].cells[rect.cols.start].classList.add(firstSelectedClass); 
 }
 
 
 export type InitializationProps = {
-    onCopy?: (data:string) => void,
+    onCopy?: (data: string) => void,
     retrieveText?: (elem: HTMLTableCellElement) => string
 };
 
-export default ({ onCopy, retrieveText } : InitializationProps = {}) => {
-    document.addEventListener('keyup', e => {
+export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
+    document.addEventListener('keydown', e => {
         if (e.key === "Escape") {
-            const tables = document.querySelectorAll('.' + selectedTableClass);
-            for (const table of Array.from(tables)) {
+            const tables = getSelectedTables();
+            for (const table of tables) {
                 unselectTable(table as HTMLTableElement);
             }
+        }
+        else if (!e.key.includes("Arrow")) return;
+        e.preventDefault();
+        const tables = getSelectedTables();
+        switch (e.key) {
+            case "ArrowLeft":
+                for(const table of tables) {
+                    addColumnSelection(table, -1);
+                }
+                break;
+            case "ArrowRight":
+                for(const table of tables) {
+                    addColumnSelection(table, 1);
+                }
+                break;
+            case "ArrowDown":
+                for(const table of tables) {
+                    addRowSelection(table, 1);
+                }
+                break;
+            case "ArrowUp":
+                for(const table of tables) {
+                    addRowSelection(table, -1);
+                }
+                break;
         }
     });
 
@@ -117,13 +186,13 @@ export default ({ onCopy, retrieveText } : InitializationProps = {}) => {
         // Try finding a table with selected cells
         if (!target) {
             target = document.querySelector('.' + selectedTableClass);
-            if(!target) return;
+            if (!target) return;
         }
 
         console.log(target)
-    
+
         const cells = getSelectedCells(target as HTMLTableElement);
-        if(cells.length === 0) return;
+        if (cells.length === 0) return;
         let toCopy = "";
         let lastRowIdx = null;
         for (const cell of cells) {
@@ -144,3 +213,7 @@ export default ({ onCopy, retrieveText } : InitializationProps = {}) => {
         e.preventDefault();
     })
 };
+
+function getSelectedTables() : HTMLTableElement[] {
+    return Array.from(document.querySelectorAll('.' + selectedTableClass));
+}
