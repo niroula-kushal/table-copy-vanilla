@@ -9,6 +9,9 @@ tableCopy({
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
+    <h3 style="text-align: center">
+      <kbd>CTRL</kbd>+<kbd>Click</kbd> inside the table to start. Click and move mouse to select. Or, use keyboard arrow keys
+    </h3>
     <div class='table-container'>
     <table>
     <tr>
