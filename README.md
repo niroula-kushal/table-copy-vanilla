@@ -16,6 +16,18 @@ npm i table-copy-vanilla
 yarn add table-copy-vanilla
 ```
 
+> CDN
+
+### Dev Usage
+
+```ts
+import {tableCopy} from 'table-copy-vanilla'
+import 'table-copy-vanilla/dist/style.css' // For default styling
+
+tableCopy();
+
+```
+
 ### User Usage
 1. Ctrl+Click on a table cell to begin
 2. Move with Arrow keys to select cells
