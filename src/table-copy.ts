@@ -54,26 +54,36 @@ function addColumnSelection(table: HTMLTableElement, columnCount: number) {
     const { rowIdx, columnIdx } = getLastSelectedCellInfo(table);
     const cells = table.rows[rowIdx].cells;
 
-    if(cells.length > columnIdx + columnCount && columnIdx + columnCount >= 0) {
-        const finalLastElement = cells[columnIdx + columnCount];
-        selectItems(finalLastElement);
+    let finalColIdx = columnIdx + columnCount;
+
+    if(finalColIdx < 0) {
+        finalColIdx = 0;
     }
+    if(finalColIdx >= cells.length) {
+        finalColIdx = cells.length - 1;
+    }
+    const finalLastElement = cells[finalColIdx];
+    selectItems(finalLastElement);
 }
 
 function addRowSelection(table: HTMLTableElement, rowCount: number) {
     const { rowIdx, columnIdx } = getLastSelectedCellInfo(table);
     const rows = table.rows;
 
-    const finalRowIdx = rowIdx + rowCount;
+    let finalRowIdx = rowIdx + rowCount;
 
-    if(finalRowIdx < 0) return;
-    if(finalRowIdx >= rows.length) return;
+    if(finalRowIdx < 0) {
+        finalRowIdx = 0;
+    }
+    if(finalRowIdx >= rows.length) {
+        finalRowIdx = rows.length - 1;
+    }
 
     const finalLastElement = rows[finalRowIdx].cells[columnIdx];
     selectItems(finalLastElement);
 }
 
-function selectItems(td: HTMLTableCellElement) {
+function selectItems(td: HTMLTableCellElement, { shouldAutoScroll = true } = {}) {
     const table = td.closest('table')!;
     const prevSelected = table.querySelectorAll("." + selectedClass);
     prevSelected.forEach(x => x.classList.remove(selectedClass));
@@ -106,7 +116,7 @@ function selectItems(td: HTMLTableCellElement) {
             column.classList.add(selectedClass);
         }
     }
-    autoScroll(table.rows[rect.rows.end].cells[rect.cols.end])
+    shouldAutoScroll && autoScroll(table.rows[rect.rows.end].cells[rect.cols.end])
     table.classList.add(selectedTableClass);
     table.rows[rect.rows.start].cells[rect.cols.start].classList.add(firstSelectedClass); 
 }
@@ -128,25 +138,32 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
         else if (!e.key.includes("Arrow")) return;
         e.preventDefault();
         const tables = getSelectedTables();
+        let delta = 1;
+        if(e.ctrlKey) {
+            delta *= 100;
+        }
+        if(e.shiftKey) {
+            delta *= 10;
+        }
         switch (e.key) {
             case "ArrowLeft":
                 for(const table of tables) {
-                    addColumnSelection(table, -1);
+                    addColumnSelection(table, -1 * delta);
                 }
                 break;
             case "ArrowRight":
                 for(const table of tables) {
-                    addColumnSelection(table, 1);
+                    addColumnSelection(table, 1 * delta);
                 }
                 break;
             case "ArrowDown":
                 for(const table of tables) {
-                    addRowSelection(table, 1);
+                    addRowSelection(table, 1 * delta);
                 }
                 break;
             case "ArrowUp":
                 for(const table of tables) {
-                    addRowSelection(table, -1);
+                    addRowSelection(table, -1 * delta);
                 }
                 break;
         }
@@ -158,7 +175,7 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
         e.preventDefault();
         let target = getTargetCol(e.target as HTMLElement);
         if (!target) return;
-        selectItems(target)
+        selectItems(target, { shouldAutoScroll: false })
     });
 
     document.body.addEventListener("mousedown", e => {
@@ -171,7 +188,7 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
         e.preventDefault();
         target.closest('table')!.querySelector('.' + firstSelectedClass)?.classList?.remove(firstSelectedClass);
         target.classList.add(firstSelectedClass);
-        selectItems(target);
+        selectItems(target, { shouldAutoScroll: false });
     });
 
 
