@@ -3,7 +3,7 @@ const selectedClass = "__x-selected";
 const firstSelectedClass = "__xfirst-selected";
 const selectedTableClass = "__x_table-selected";
 
-const __table_copy_session_data : { lastActiveElement: Element | null } = {
+const __table_copy_session_data : { lastActiveElement: HTMLElement | null } = {
     lastActiveElement: null
 };
 
@@ -63,7 +63,7 @@ function focusLastActiveElement() {
 
 function unfocusCurrentActiveElement() {
     if(__table_copy_session_data.lastActiveElement === null && document.activeElement) {
-        __table_copy_session_data.lastActiveElement = document.activeElement;
+        __table_copy_session_data.lastActiveElement = document.activeElement as HTMLElement;
         if(typeof __table_copy_session_data.lastActiveElement.blur !== 'undefined') {
             __table_copy_session_data.lastActiveElement.blur();
         }
