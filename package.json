@@ -1,10 +1,21 @@
 {
   "name": "table-copy-vanilla",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "type": "module",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/table-copy-vanilla.umd.js",
+      "import": "./dist/table-copy-vanilla.es.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
   "main": "./dist/table-copy-vanilla.umd.js",
   "module": "./dist/table-copy-vanilla.es.js",
   "scripts": {
