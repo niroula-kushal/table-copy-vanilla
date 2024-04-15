@@ -1,6 +1,6 @@
 {
   "name": "table-copy-vanilla",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "type": "module",
   "files": [
     "dist"
