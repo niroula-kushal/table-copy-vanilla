@@ -1,3 +1,9 @@
-.__x-selected,.p-datatable .p-datatable-thead > tr > th.__x-selected {
+td.__x-selected, th.__x-selected,
+td:not(.l):not(.o):not(.l).__x-selected, td:not(.l):not(.o):not(.l).__x-selected *, th:not(.l):not(.o):not(.l).__x-selected, tr:not(.h):not(.o):not(.l):not(.a):hover td.__x-selected, tr:not(.h):not(.o):not(.l):not(.a):hover th.__x-selected
+{
     background-color: lightblue !important;
+    color: black !important;
 }
+/*
+The extra rule is to increase the specificity
+*/
