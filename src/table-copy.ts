@@ -3,6 +3,10 @@ const selectedClass = "__x-selected";
 const firstSelectedClass = "__xfirst-selected";
 const selectedTableClass = "__x_table-selected";
 
+const __table_copy_session_data : { lastActiveElement: Element | null } = {
+    lastActiveElement: null
+};
+
 function getTargetCol(target: HTMLElement): HTMLTableCellElement {
     let targetTd: any = target;
     if (target.tagName !== "td" && target.tagName !== "th") {
@@ -48,6 +52,22 @@ function getLastSelectedCellInfo(table: HTMLTableElement) {
 
 function autoScroll(elm: HTMLElement) {
     elm.scrollIntoView({block: "end", inline: "nearest", behavior: 'smooth'});
+}
+
+function focusLastActiveElement() {
+    if(__table_copy_session_data.lastActiveElement && typeof __table_copy_session_data.lastActiveElement.focus !== 'undefined') {
+        __table_copy_session_data.lastActiveElement.focus();
+        __table_copy_session_data.lastActiveElement = null;
+    }
+}
+
+function unfocusCurrentActiveElement() {
+    if(__table_copy_session_data.lastActiveElement === null && document.activeElement) {
+        __table_copy_session_data.lastActiveElement = document.activeElement;
+        if(typeof __table_copy_session_data.lastActiveElement.blur !== 'undefined') {
+            __table_copy_session_data.lastActiveElement.blur();
+        }
+    }
 }
 
 function addColumnSelection(table: HTMLTableElement, columnCount: number) {
@@ -134,10 +154,16 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
             for (const table of tables) {
                 unselectTable(table as HTMLTableElement);
             }
+            focusLastActiveElement();
         }
         else if (!e.key.includes("Arrow")) return;
-        e.preventDefault();
         const tables = getSelectedTables();
+        if(tables.length == 0) return;
+
+        e.preventDefault();
+
+        unfocusCurrentActiveElement();
+
         let delta = 1;
         if(e.ctrlKey) {
             delta *= 100;
@@ -181,8 +207,10 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
     document.body.addEventListener("mousedown", e => {
         if (!e.ctrlKey) {
             handleTableUnselect(e);
+            focusLastActiveElement();
             return;
         }
+        unfocusCurrentActiveElement();
         let target = getTargetCol(e.target as HTMLElement);
         if (!target) return;
         e.preventDefault();
@@ -205,8 +233,6 @@ export default ({ onCopy, retrieveText }: InitializationProps = {}) => {
             target = document.querySelector('.' + selectedTableClass);
             if (!target) return;
         }
-
-        console.log(target)
 
         const cells = getSelectedCells(target as HTMLTableElement);
         if (cells.length === 0) return;
