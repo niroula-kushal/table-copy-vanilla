@@ -42,3 +42,8 @@ tableCopy();
 
 ### Focused Element Behavior
 If a input element was focused before starting the table selection, the focus will be removed from the element. The focus is restored with the user cancels the selection. Either via `ESC` or by mouse press without `CTRL` pressed
+
+
+### Samples
+
+1. Svelte: https://github.com/RehmatFalcon/table-copy-samples/tree/master/svelte
