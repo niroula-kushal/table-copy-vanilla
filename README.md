@@ -4,6 +4,14 @@ Allows users to select a portion of html tables and copy the content. The conten
 
 ## Demo Link: https://table-copy-vanilla.netlify.app/
 
+## Demo
+
+
+
+
+https://github.com/RehmatFalcon/table-copy-vanilla/assets/28915667/ead0a931-e273-4989-ada7-c802cd1b5f5c
+
+
 ## Installation
 
 > npm
